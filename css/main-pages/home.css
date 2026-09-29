@@ -1,0 +1,5 @@
+.hero-avatar {
+    width: 15rem;
+    height: 15rem;
+    border-radius: var(--radius-full);
+}

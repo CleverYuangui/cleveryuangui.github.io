@@ -1,0 +1,5 @@
+:root {
+    --font-sans: "Source Sans 3", -apple-system, BlinkMacSystemFont, system-ui, ui-sans-serif, "SF Pro", "Segoe UI", Roboto, "HarmonyOS Sans TC", "HarmonyOS Sans", "Helvetica Neue", Helvetica, Arial, "PingFang TC", "Microsoft JhengHei UI", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", Symbola;
+    --font-serif: "Playfair Display", Georgia, ui-serif, "New York", "Noto Serif", "Times New Roman", "Songti TC", STSong, MingLiU, "Noto Serif CJK TC", serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", Symbola;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Consolas, "Roboto Mono", "Courier New", "Noto Sans Mono CJK TC", "Noto Sans Mono", monospace, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", Symbola;
+}

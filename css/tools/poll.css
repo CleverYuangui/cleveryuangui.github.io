@@ -1,0 +1,416 @@
+/* Colors */
+:root {
+    --ok-background: #28A745;
+    --ok-hover: #218838;
+    --ok-foreground: white;
+    --tick-background: #007BFF;
+    --tick-foreground: white;
+    --danger-foreground: #DC3545;
+    --danger-hover: #FFF0F0;
+}
+html[data-theme="dark"] {
+    --ok-background: #218838;
+    --ok-hover: #28A745;
+    --tick-background: #5E93D2;
+    --danger-foreground: #DC3545;
+    --danger-hover: #001010;
+}
+/* Heat gradient (HSL) */
+:root {
+    --heat-hue-low: 120;
+    --heat-hue-high: 0;
+    --heat-sat: 70%;
+    --heat-light: 30%;
+}
+
+/* Title */
+.title {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    text-align: center;
+}
+
+/* Total */
+.total-line {
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.8rem;
+    color: var(--muted-foreground);
+    font-size: 1rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+}
+
+.total-value {
+    color: var(--foreground);
+    font-size: 2rem;
+    font-family: var(--font-serif);
+    font-weight: 500;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    padding: 0.6rem;
+    min-height: 1.1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0.4rem;
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    transition: background 0.2s, border-color 0.2s;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.btn-lg {
+    padding: 0.8rem;
+    font-size: 1.3rem;
+}
+.btn:hover {
+    background: var(--muted);
+    border-color: var(--border-hover);
+    color: var(--accent);
+}
+.btn:active {
+    transform: scale(0.95);
+}
+
+.btn-ok {
+    background: var(--ok-background);
+    border-color: var(--ok-background);
+    color: var(--ok-foreground);
+}
+.btn-ok:hover {
+    background: var(--ok-hover);
+    border-color: var(--ok-hover);
+    color: var(--ok-foreground);
+}
+.btn-danger {
+    background: var(--card);
+    border-color: var(--danger-foreground);
+    color: var(--danger-foreground);
+}
+.btn-danger:hover {
+    background: var(--danger-hover);
+    border-color: var(--danger-foreground);
+    color: var(--danger-foreground);
+}
+
+/* Action Rows */
+.action-row {
+    display: flex;
+}
+.action-group {
+    display: flex;
+    margin: 0.5rem 0;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+}
+.main-actions {
+    display: flex;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* Candidates */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+}
+.candidate {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.2rem;
+    min-height: 1rem;
+    padding: 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.candidate:active {
+    transform: scale(0.95);
+}
+.candidate .name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.candidate .count {
+    flex: 0 0 auto;
+    min-width: 1rch;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    text-align: end;
+}
+
+.add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1rem;
+    padding: 0.8rem;
+    border: 1.5px dashed var(--foreground);
+    border-radius: var(--radius-lg);
+    background: var(--background);
+    color: var(--foreground);
+    font-size: 1.2rem;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background 0.2s, border-color 0.2s;
+}
+.add-btn:hover {
+    background: var(--muted);
+    border-color: var(--border-hover);
+    color: var(--accent);
+}
+.add-btn .add-label::before {
+    margin-inline-end: 0.4rem;
+    content: '+';
+}
+
+/* Select Mode */
+.candidate.in-select {
+    opacity: 0.7;
+}
+.candidate.selected {
+    opacity: 1;
+}
+.candidate .tick {
+    position: absolute;
+    display: flex;
+    top: -0.3rem;
+    right: -0.3rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+.candidate.selected .tick {
+    background: var(--tick-background);
+    border-color: var(--tick-background);
+}
+.candidate .tick::after {
+    content: "";
+    width: 0.3rem;
+    height: 0.5rem;
+    margin-top: -0.1rem;
+    margin-right: -0.1rem;
+    border: solid var(--tick-foreground);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    opacity: 0;
+}
+.candidate.selected .tick::after {
+    opacity: 1;
+}
+
+.select-ops {
+    display: flex;
+    flex-direction: column;
+    margin: 0.5rem 0 0;
+    gap: 0.6rem;
+    padding: 0.6rem;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+/* Overlay Modal */
+.overlay {
+    position: fixed;
+    display: flex;
+    z-index: 100;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+    animation: overlayIn 0.2s;
+}
+@keyframes overlayIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+.modal {
+    max-width: 80vw;
+    max-height: 80vh;
+    overflow: auto;
+    padding: 0.6rem;
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    animation: modalIn 0.2s;
+}
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Menu inside a modal */
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: 100%;
+}
+.menu-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+}
+.menu-title {
+    margin-bottom: 0rem;
+}
+
+/* Button with Input */
+.menu-btn {
+    min-height: 3rem;
+    padding: 0.3rem 0.6rem;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+.menu-btn:active {
+    transform: scale(1);
+}
+.menu-btn .menu-btn-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: normal;
+    word-break: break-word;
+}
+.menu-btn .menu-input {
+    flex: 0 0 auto;
+    width: 6ch;
+    padding: 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--foreground);
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.menu-btn .menu-input:focus {
+    outline: none;
+    border-color: var(--border-hover);
+    box-shadow: 0 0 0 2px var(--accent);
+}
+.menu-btn .menu-input.menu-input-text {
+    width: 8rem;
+    text-align: start;
+    font-family: var(--font-sans);
+}
+
+/* Add-candidate Modal */
+.add-input {
+    min-height: 1.2rem;
+    padding: 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.add-input:focus {
+    outline: none;
+    border-color: var(--border-hover);
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--accent);
+}
+
+/* Sort Modal */
+.sort-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+}
+.sort-list li {
+    display: flex;
+    margin: 0;
+    padding: 0.3rem 0.1rem;
+    justify-content: space-between;
+    font-size: 1rem;
+    line-height: 1.3;
+    text-align: start;
+}
+.sort-list li .name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+.sort-list li .count {
+    flex: 0 0 auto;
+    min-width: 1rch;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    text-align: end;
+}
+.sort-list li .count::before {
+    margin-inline-start: 1rch;
+    flex: 1 1 auto;
+    content: '- ';
+    text-align: end;
+}
+
+/* Random-choice Modal */
+.chosen-name {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    line-height: 1.2;
+    text-align: center;
+    padding: 0.1rem 0.1rem;
+    word-break: break-word;
+}
+
+/* Plain Message Modal */
+.modal-msg {
+    font-size: 1rem;
+    text-align: center;
+    padding: 0.6rem;
+    color: var(--muted-foreground);
+}
