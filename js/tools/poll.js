@@ -7,7 +7,7 @@ let selectedIds = new Set();
 
 // DOM
 const selectBtn = $('#selectBtn');
-const resetBtn = $('#resetBtn');
+const templateBtn = $('#templateBtn');
 const clearBtn = $('#clearBtn');
 const clearAllBtn = $('#clearAllBtn');
 const selectAllBtn = $('#selectAllBtn');
@@ -26,10 +26,12 @@ const templateAddBtn = $('#templateAddBtn');
 const templateAdd = $('#templateAdd');
 const templateSort = $('#templateSort');
 const templateChoose = $('#templateChoose');
+const templateTemplate = $('#templateTemplate');
 const templateClearAll = $('#templateClearAll');
 const templateCandidateMenu = $('#templateCandidateMenu');
-const alertTextP = $('#alertText').content.querySelector('#alertTextP');
-const alertTextN = $('#alertText').content.querySelector('#alertTextN');
+
+const alertTextNonNegative = alertText.nonNegative;
+const alertTextPositive = alertText.positive;
 
 // Storage
 function save() {
@@ -78,24 +80,12 @@ function guardInput(inp, btn) {
             e.preventDefault();
             btn.click();
         }
+        if (e.key === ' ') {
+            e.preventDefault();
+        }
     });
+    inp.addEventListener('focus', () => inp.select());
 }
-
-// Modal
-function closeModal() {
-    overlay.hidden = true;
-    templateAdd.hidden = true;
-    templateSort.hidden = true;
-    templateChoose.hidden = true;
-    templateClearAll.hidden = true;
-    templateCandidateMenu.hidden = true;
-}
-document.addEventListener('click', function (e) {
-    if (e.target === overlay) closeModal();
-});
-document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeModal();
-});
 
 // Calculate
 function uid() {
@@ -127,7 +117,9 @@ function render() {
     const tot = total();
     totalValue.textContent = String(tot);
     grid.innerHTML = '';
-    candidates.forEach(function (c) {
+    if (selectMode) grid.classList.add('in-select');
+    else grid.classList.remove('in-select');
+    for (const c of candidates) {
         const el = document.createElement('div');
         el.className = 'candidate';
         el.dataset.id = c.id;
@@ -149,11 +141,12 @@ function render() {
         if (selectMode) {
             const tick = document.createElement('span');
             tick.className = 'tick';
+            if (selectedIds.has(c.id)) tick.innerHTML = '<i class="fas fa-check"></i>';
             el.appendChild(tick);
         }
         bindCandidate(el, c);
         grid.appendChild(el);
-    });
+    }
     if (selectMode) {
         if (selectedIds.size === candidates.length) {
             selectAllBtn.hidden = true;
@@ -199,38 +192,59 @@ function bindCandidate(el, c) {
     el.addEventListener('touchcancel', cancelLP);
 }
 
+// Modal
+function closeModal() {
+    overlay.hidden = true;
+    templateAdd.hidden = true;
+    templateSort.hidden = true;
+    templateChoose.hidden = true;
+    templateTemplate.hidden = true;
+    templateClearAll.hidden = true;
+    templateCandidateMenu.hidden = true;
+    currentCandidate = null;
+    chosen = null;
+}
+document.addEventListener('click', function (e) {
+    if (e.target === overlay) closeModal();
+});
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeModal();
+});
+
 // Add Modal
 function openAddModal() {
     const inp = templateAdd.querySelector('#addInput');
     templateAdd.hidden = false;
-    overlay.hidden = false;
     inp.value = '';
+    overlay.hidden = false;
     inp.focus();
-}
-templateAdd.querySelector('#addBtnOk').addEventListener('click', function () {
+}{
+    const btn = templateAdd.querySelector('#addBtnOk');
     const inp = templateAdd.querySelector('#addInput');
-    const name = inp.value.trim() || inp.placeholder;
-    candidates.push({ id: uid(), name: name, count: 0 });
-    save();
-    render();
-    closeModal();
-});
+    guardInput(inp, btn);
+    btn.addEventListener('click', function () {
+        const name = inp.value.trim() || inp.placeholder;
+        candidates.push({ id: uid(), name: name, count: 0 });
+        save();
+        render();
+        closeModal();
+    });
+}
 
 // Candidate Menu
 let currentCandidate;
 function openCandidateMenu(c) {
     currentCandidate = c;
     templateCandidateMenu.hidden = false;
-    overlay.hidden = false;
     templateCandidateMenu.querySelector('.section-label').textContent = c.name;
-    ['#candidateBtnPlus', '#candidateBtnMinus', '#candidateBtnSet'].forEach(function (btn) {
+    for (const btn of ['#candidateBtnPlus', '#candidateBtnMinus', '#candidateBtnSet']) {
         const inp = templateCandidateMenu.querySelector(btn).querySelector('.menu-input');
         inp.value = inp.dataset.default;
-    });
-    ['#candidateBtnRename'].forEach(function (btn) {
-        const inp = templateCandidateMenu.querySelector(btn).querySelector('.menu-input');
+    }{
+        const inp = templateCandidateMenu.querySelector('#candidateBtnRename').querySelector('.menu-input');
         inp.value = '';
-    });
+    }
+    overlay.hidden = false;
 }{
     const btn = templateCandidateMenu.querySelector('#candidateBtnPlus');
     const inp = btn.querySelector('.menu-input');
@@ -238,7 +252,7 @@ function openCandidateMenu(c) {
     btn.addEventListener('click', function () {
         const v = parsePositiveInt(inp.value.trim());
         if (v === null) {
-            alert(alertTextP.textContent);
+            alert(alertTextPositive);
             return;
         }
         currentCandidate.count += v;
@@ -251,7 +265,7 @@ function openCandidateMenu(c) {
     btn.addEventListener('click', function () {
         const v = parsePositiveInt(inp.value.trim());
         if (v === null) {
-            alert(alertTextP.textContent);
+            alert(alertTextPositive);
             return;
         }
         currentCandidate.count = Math.max(0, currentCandidate.count - v);
@@ -264,7 +278,7 @@ function openCandidateMenu(c) {
     btn.addEventListener('click', function () {
         const v = parseNonNegativeInt(inp.value.trim());
         if (v === null) {
-            alert(alertTextN.textContent);
+            alert(alertTextNonNegative);
             return;
         }
         currentCandidate.count = v;
@@ -289,20 +303,29 @@ function openCandidateMenu(c) {
 
 // Select Mode
 function enterSelectMode() {
+    normalActions.hidden = true;
     selectMode = true;
     selectedIds.clear();
-    normalActions.hidden = true;
+    for (const btn of ['#selectBtnSet', '#selectBtnPlus', '#selectBtnMinus', '#selectBtnMultiply', '#selectBtnDivideFloor', '#selectBtnDivideCeil']) {
+        const inp = selectOps.querySelector(btn).querySelector('.menu-input');
+        inp.value = inp.dataset.default;
+    }{
+        const btn = selectOps.querySelector('#selectBtnMod');
+        if (btn) {
+            const inp = btn.querySelector('.menu-input');
+            inp.value = inp.dataset.default;
+        }
+    }
+    render();
     selectActions.hidden = false;
     selectOps.hidden = false;
-    buildSelectOps();
-    render();
 }
 function exitSelectMode() {
+    selectOps.hidden = true;
+    normalActions.hidden = false;
     selectMode = false;
     selectedIds.clear();
-    normalActions.hidden = false;
     selectActions.hidden = true;
-    selectOps.hidden = true;
     render();
 }
 function toggleSelect(id) {
@@ -312,21 +335,22 @@ function toggleSelect(id) {
 }
 function applyToSelected(fn) {
     if (selectedIds.size === 0) { return; }
-    candidates.forEach(function (c) {
+    for (const c of candidates) {
         if (selectedIds.has(c.id)) fn(c);
-    });
+    }
     save();
     exitSelectMode();
-}
-
-function buildSelectOps() {
-    ['#selectBtnPlus', '#selectBtnMinus', '#selectBtnMultiply', '#selectBtnDivideFloor', '#selectBtnDivideCeil', '#selectBtnSet'].forEach(function (btn) {
-        const inp = selectOps.querySelector(btn).querySelector('.menu-input');
-        inp.value = inp.dataset.default;
-    });
-    ['#selectBtnRename'].forEach(function (btn) {
-        const inp = selectOps.querySelector(btn).querySelector('.menu-input');
-        inp.value = '';
+}{
+    const btn = selectOps.querySelector('#selectBtnSet');
+    const inp = btn.querySelector('.menu-input');
+    guardInput(inp, btn);
+    btn.addEventListener('click', function () {
+        const v = parseNonNegativeInt(inp.value.trim());
+        if (v === null) {
+            alert(alertTextNonNegative);
+            return;
+        }
+        applyToSelected(function (c) { c.count = v; });
     });
 }{
     const btn = selectOps.querySelector('#selectBtnPlus');
@@ -335,7 +359,7 @@ function buildSelectOps() {
     btn.addEventListener('click', function () {
         const v = parsePositiveInt(inp.value.trim());
         if (v === null) {
-            alert(alertTextP.textContent);
+            alert(alertTextPositive);
             return;
         }
         applyToSelected(function (c) { c.count += v; });
@@ -347,7 +371,7 @@ function buildSelectOps() {
     btn.addEventListener('click', function () {
         const v = parsePositiveInt(inp.value.trim());
         if (v === null) {
-            alert(alertTextP.textContent);
+            alert(alertTextPositive);
             return;
         }
         applyToSelected(function (c) { c.count = Math.max(0, c.count - v); });
@@ -359,10 +383,10 @@ function buildSelectOps() {
     btn.addEventListener('click', function () {
         const v = parsePositiveInt(inp.value.trim());
         if (v === null) {
-            alert(alertTextP.textContent);
+            alert(alertTextPositive);
             return;
         }
-        applyToSelected(function (c) { c.count = c.count * v; });
+        applyToSelected(function (c) { c.count *= v; });
     });
 }{
     const btn = selectOps.querySelector('#selectBtnDivideFloor');
@@ -371,7 +395,7 @@ function buildSelectOps() {
     btn.addEventListener('click', function () {
         const v = parsePositiveInt(inp.value.trim());
         if (v === null) {
-            alert(alertTextP.textContent);
+            alert(alertTextPositive);
             return;
         }
         applyToSelected(function (c) { c.count = Math.floor(c.count / v); });
@@ -383,23 +407,25 @@ function buildSelectOps() {
     btn.addEventListener('click', function () {
         const v = parsePositiveInt(inp.value.trim());
         if (v === null) {
-            alert(alertTextP.textContent);
+            alert(alertTextPositive);
             return;
         }
         applyToSelected(function (c) { c.count = Math.ceil(c.count / v); });
     });
 }{
-    const btn = selectOps.querySelector('#selectBtnSet');
-    const inp = btn.querySelector('.menu-input');
-    guardInput(inp, btn);
-    btn.addEventListener('click', function () {
-        const v = parseNonNegativeInt(inp.value.trim());
-        if (v === null) {
-            alert(alertTextN.textContent);
-            return;
-        }
-        applyToSelected(function (c) { c.count = v; });
-    });
+    const btn = selectOps.querySelector('#selectBtnMod');
+    if (btn) {
+        const inp = btn.querySelector('.menu-input');
+        guardInput(inp, btn);
+        btn.addEventListener('click', function () {
+            const v = parsePositiveInt(inp.value.trim());
+            if (v === null) {
+                alert(alertTextPositive);
+                return;
+            }
+            applyToSelected(function (c) { c.count %= v; });
+        });
+    }
 }{
     const btn = selectOps.querySelector('#selectBtnDelete');
     btn.addEventListener('click', function () {
@@ -426,7 +452,7 @@ function openSortModal() {
             if (b.count !== a.count) return b.count - a.count;
             return a.name.localeCompare(b.name);
         });
-        sorted.forEach(function (c) {
+        for (const c of sorted) {
             const li = document.createElement('li');
             const name = document.createElement('span');
             name.className = 'name';
@@ -437,7 +463,7 @@ function openSortModal() {
             li.appendChild(name);
             li.appendChild(cnt);
             ol.appendChild(li);
-        });
+        }
     }
     overlay.hidden = false;
 }
@@ -489,6 +515,46 @@ templateChoose.querySelector('#chooseBtnDelete').addEventListener('click', funct
     render();
 });
 
+// Template
+function openTemplateModal() {
+    const inp = templateTemplate.querySelector('#templateBtnChoice').querySelector('.menu-input');
+    templateTemplate.hidden = false;
+    inp.value = inp.dataset.default;
+    overlay.hidden = false;
+    inp.focus();
+}{
+    const btn = templateTemplate.querySelector('#templateBtnChoice');
+    const inp = btn.querySelector('.menu-input');
+    guardInput(inp, btn);
+    btn.addEventListener('click', function () {
+        const v = parsePositiveInt(inp.value.trim());
+        if (v === null) {
+            alert(alertTextPositive);
+            return;
+        }
+        candidates = [];
+        id = 0;
+        for (let i = 1; i <= v; i++) {
+            candidates.push({ id: uid(), name: String(i), count: 0 });
+        }
+        save(); render(); closeModal();
+    });
+}{
+    const btn = templateTemplate.querySelector('#templateBtnReset');
+    if (btn) {
+        btn.addEventListener('click', function () {
+            candidates = [];
+            id = 0;
+            for (const c of defaultCandidates) {
+                candidates.push({ id: uid(), name: c, count: 0});
+            }
+            save();
+            render();
+            closeModal();
+        });
+    }
+}
+
 // ClearAll Confirm
 function openClearAllConfirm() {
     templateClearAll.hidden = false;
@@ -505,14 +571,9 @@ templateClearAll.querySelector('#clearBtnYes').addEventListener('click', functio
 
 // Event Listeners
 render();
-resetBtn.addEventListener('click', function () {
-    candidates = [{ id: 1, name: '01 鲍美旭', count: 0 }, { id: 2, name: '02 段怡宁', count: 0 }, { id: 3, name: '03 王照杰', count: 0 }, { id: 4, name: '04 许欣怡', count: 0 }, { id: 5, name: '05 杨听云', count: 0 }, { id: 6, name: '06 周文晴', count: 0 }, { id: 7, name: '07 曾益', count: 0 }, { id: 8, name: '08 陈昊运', count: 0 }, { id: 9, name: '09 方奕航', count: 0 }, { id: 10, name: '10 冯振修', count: 0 }, { id: 11, name: '11 郭璟然', count: 0 }, { id: 12, name: '12 华奕夫', count: 0 }, { id: 13, name: '13 黄隽杰', count: 0 }, { id: 14, name: '14 蒋彧翎', count: 0 }, { id: 15, name: '15 李恩潺', count: 0 }, { id: 16, name: '16 李泊霖', count: 0 }, { id: 17, name: '17 李熙澳', count: 0 }, { id: 18, name: '18 刘善岩', count: 0 }, { id: 19, name: '19 刘天恺', count: 0 }, { id: 20, name: '20 陆博仁', count: 0 }, { id: 21, name: '21 陆璟文', count: 0 }, { id: 22, name: '22 马敬知', count: 0 }, { id: 23, name: '23 邱裴麟', count: 0 }, { id: 24, name: '24 邱语桐', count: 0 }, { id: 25, name: '25 孙晨阳', count: 0 }, { id: 26, name: '26 孙皓澄', count: 0 }, { id: 27, name: '27 汪瑞阳', count: 0 }, { id: 28, name: '28 汪昱帆', count: 0 }, { id: 29, name: '29 王衿', count: 0 }, { id: 30, name: '30 王竞扬', count: 0 }, { id: 31, name: '31 徐康杰', count: 0 }, { id: 32, name: '32 许若宸', count: 0 }, { id: 33, name: '33 严一篪', count: 0 }, { id: 34, name: '34 杨持', count: 0 }, { id: 35, name: '35 姚皓宇', count: 0 }, { id: 36, name: '36 虞思承', count: 0 }, { id: 37, name: '37 袁煊逸', count: 0 }, { id: 38, name: '38 袁泽', count: 0 }, { id: 39, name: '39 赵瑞韬', count: 0 }, { id: 40, name: '40 钟远', count: 0 }];
-    id = 40;
-    save();
-    render();
-});
+templateBtn.addEventListener('click', openTemplateModal);
 clearBtn.addEventListener('click', function () {
-    candidates.forEach(function (c) { c.count = 0; });
+    for (const c of candidates) { c.count = 0; }
     save();
     render();
 });
@@ -522,11 +583,11 @@ clearAllBtn.addEventListener('click', function () {
 });
 selectBtn.addEventListener('click', enterSelectMode);
 selectAllBtn.addEventListener('click', function () {
-    candidates.forEach(function (c) { selectedIds.add(c.id); });
+    for (const c of candidates) { selectedIds.add(c.id); }
     render();
 });
 unselectAllBtn.addEventListener('click', function () {
-    candidates.forEach(function (c) { selectedIds.delete(c.id); });
+    selectedIds.clear();
     render();
 });
 cancelBtn.addEventListener('click', exitSelectMode);

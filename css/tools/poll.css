@@ -28,8 +28,10 @@ html[data-theme="dark"] {
     margin: 0;
     font-family: var(--font-serif);
     font-size: 2rem;
-    font-weight: 400;
+    font-weight: 500;
     letter-spacing: -0.01em;
+    align-items: baseline;
+    justify-content: center;
     text-align: center;
 }
 
@@ -42,15 +44,14 @@ html[data-theme="dark"] {
     gap: 0.8rem;
     color: var(--muted-foreground);
     font-size: 1rem;
-    font-family: var(--font-mono);
+    font-family: var(--font-sans);
     text-transform: uppercase;
 }
 
 .total-value {
     color: var(--foreground);
     font-size: 2rem;
-    font-family: var(--font-serif);
-    font-weight: 500;
+    font-family: var(--font-mono);
 }
 
 /* Buttons */
@@ -129,7 +130,7 @@ html[data-theme="dark"] {
 /* Candidates */
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 1rem;
 }
 .candidate {
@@ -137,7 +138,7 @@ html[data-theme="dark"] {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.2rem;
+    gap: 0.5rem;
     min-height: 1rem;
     padding: 0.8rem;
     border: 1px solid var(--border);
@@ -186,13 +187,16 @@ html[data-theme="dark"] {
     border-color: var(--border-hover);
     color: var(--accent);
 }
+.add-btn:active {
+    transform: scale(0.95);
+}
 .add-btn .add-label::before {
     margin-inline-end: 0.4rem;
     content: '+';
 }
 
 /* Select Mode */
-.candidate.in-select {
+.in-select .candidate {
     opacity: 0.7;
 }
 .candidate.selected {
@@ -206,39 +210,37 @@ html[data-theme="dark"] {
     width: 1rem;
     height: 1rem;
     border-radius: 50%;
+    background: var(--card);
+    color: var(--tick-foreground);
+    border: 1px solid var(--border);
+    font-size: 0.6rem;
     align-items: center;
     justify-content: center;
-    background: var(--card);
-    border: 1px solid var(--border);
 }
 .candidate.selected .tick {
     background: var(--tick-background);
-    border-color: var(--tick-background);
-}
-.candidate .tick::after {
-    content: "";
-    width: 0.3rem;
-    height: 0.5rem;
-    margin-top: -0.1rem;
-    margin-right: -0.1rem;
-    border: solid var(--tick-foreground);
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-    opacity: 0;
-}
-.candidate.selected .tick::after {
-    opacity: 1;
 }
 
 .select-ops {
     display: flex;
     flex-direction: column;
     margin: 0.5rem 0 0;
-    gap: 0.6rem;
     padding: 0.6rem;
+    gap: 0.6rem;
     background: var(--muted);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
+    animation: selectOpen 0.2s;
+}
+@keyframes selectOpen {
+    from {
+        opacity: 0;
+        clip-path: inset(0 0 100% 0);
+    }
+    to {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+    }
 }
 
 /* Overlay Modal */
@@ -250,7 +252,8 @@ html[data-theme="dark"] {
     align-items: center;
     justify-content: center;
     backdrop-filter: blur(6px);
-    animation: overlayIn 0.2s;
+    -webkit-backdrop-filter: blur(6px);
+    animation: overlayIn 0.18s;
 }
 @keyframes overlayIn {
     from {
@@ -263,11 +266,12 @@ html[data-theme="dark"] {
 .modal {
     max-width: 80vw;
     max-height: 80vh;
-    overflow: auto;
     padding: 0.6rem;
+    overflow: auto;
     background: var(--card);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
+    transition: backgrond 0.2s;
     animation: modalIn 0.2s;
 }
 @keyframes modalIn {
@@ -299,7 +303,6 @@ html[data-theme="dark"] {
 .menu-title {
     margin-bottom: 0rem;
 }
-
 /* Button with Input */
 .menu-btn {
     min-height: 3rem;
@@ -315,7 +318,6 @@ html[data-theme="dark"] {
     flex: 1 1 auto;
     min-width: 0;
     white-space: normal;
-    word-break: break-word;
 }
 .menu-btn .menu-input {
     flex: 0 0 auto;
@@ -341,6 +343,17 @@ html[data-theme="dark"] {
     font-family: var(--font-sans);
 }
 
+/* Plain Message Modal */
+.modal-msg {
+    font-size: 1rem;
+    text-align: center;
+    padding: 0.3rem 0.5rem;
+    color: var(--muted-foreground);
+}
+.danger-msg {
+    color: var(--danger-foreground);
+}
+
 /* Add-candidate Modal */
 .add-input {
     min-height: 1.2rem;
@@ -361,18 +374,17 @@ html[data-theme="dark"] {
 
 /* Sort Modal */
 .sort-list {
-    list-style: none;
     margin: 0;
     padding: 0;
+    list-style: none;
     overflow-y: auto;
 }
 .sort-list li {
     display: flex;
     margin: 0;
-    padding: 0.3rem 0.1rem;
+    padding: 0.2rem 0.1rem;
     justify-content: space-between;
     font-size: 1rem;
-    line-height: 1.3;
     text-align: start;
 }
 .sort-list li .name {
@@ -391,26 +403,18 @@ html[data-theme="dark"] {
     text-align: end;
 }
 .sort-list li .count::before {
-    margin-inline-start: 1rch;
+    padding-left: 1rch;
+    padding-right: 1rch;
     flex: 1 1 auto;
-    content: '- ';
+    content: '-';
     text-align: end;
 }
 
 /* Random-choice Modal */
 .chosen-name {
-    font-family: var(--font-serif);
+    padding: 0.1rem;
+    font-family: var(--font-sans);
     font-size: 1.5rem;
     line-height: 1.2;
     text-align: center;
-    padding: 0.1rem 0.1rem;
-    word-break: break-word;
-}
-
-/* Plain Message Modal */
-.modal-msg {
-    font-size: 1rem;
-    text-align: center;
-    padding: 0.6rem;
-    color: var(--muted-foreground);
 }
